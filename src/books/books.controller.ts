@@ -18,11 +18,6 @@ export async function getBookHandler(req: Request, res: Response, next: NextFunc
     try {
         const book = await getBookById(Number(req.params.id));
 
-        if (!book) return res.status(404).json({
-            success: false,
-            error: `Book with ${req.params.id} not found!`
-        })
-
         res.status(200).json({
             success: true,
             data: book

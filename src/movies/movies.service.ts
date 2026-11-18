@@ -1,3 +1,5 @@
+import { MovieNotFoundError } from "./movies.errors";
+
 interface Crew {
     director: string;
     editor: string;
@@ -89,6 +91,8 @@ export async function getAllMovies(): Promise<Movie[]> {
     return movies;
 }
 
-export async function getMovieById(id: number): Promise<Movie | null> {
-    return movies.find((m) => m.id === id) ?? null;
+export async function getMovieById(id: number): Promise<Movie> {
+    const movie = movies.find((m) => m.id === id);
+    if (!movie) throw new MovieNotFoundError(id);
+    return movie;
 }

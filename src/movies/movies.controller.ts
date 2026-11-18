@@ -18,11 +18,6 @@ export async function getMovieHandler(req: Request, res: Response, next: NextFun
     try {
         const movie = await getMovieById(Number(req.params.id));
 
-        if (!movie) return res.status(404).json({
-            success: false,
-            error: `Movie with ${req.params.id} not found!`
-        })
-
         res.status(200).json({
             success: true,
             data: movie
