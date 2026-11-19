@@ -27,10 +27,10 @@ export function handleBookErrors(err: Error, req: Request, res: Response, next: 
         return res.status(404).json({ error: err.message })
     }
     if (err instanceof BookSearchQueryMissingError) {
-        return res.status(403).json({ error: err.message })
+        return res.status(400).json({ error: err.message })
     }
     if (err instanceof BookSearchFailedError) {
-        return res.status(404).json({ error: err.message })
+        return res.status(502).json({ error: err.message })
     }
 
     next(err);

@@ -38,15 +38,18 @@ export async function getBookById(id: number): Promise<Book> {
 }
 
 export async function searchBook(query: string): Promise<Book[]> {
-    const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`);
+    let response: Response;
+    try {
+        response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`);
+    } catch {
+        throw new BookSearchFailedError(query);
+    }
 
     if (!response.ok) {
         throw new BookSearchFailedError(query);
     }
 
     const data: OpenLibrarySearchResponse = await response.json();
-
-    console.log(data);
 
     return data.docs.map(book => {
         return {

@@ -41,10 +41,10 @@ router.get("/", getBooksHandler);
  *     responses:
  *       200:
  *         description: Liste der gefundenen Bücher
- *       403:
+ *       400:
  *         description: Der Suchbegriff fehlt.
- *       404:
- *         description: Die Suche ist fehlgeschlagen.
+ *       502:
+ *         description: Die OpenLibrary-API ist nicht erreichbar oder hat einen Fehler zurückgegeben.
  */
 router.get("/search", searchBooksHandler);
 
