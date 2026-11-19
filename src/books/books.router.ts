@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { getBookHandler, getBooksHandler } from "./books.controller";
-import { handleBookErrors } from "./books.errors";
+import { getBookHandler, getBooksHandler } from "./books.controller.ts";
+import { handleBookErrors } from "./books.errors.ts";
 
 const router = Router();
 

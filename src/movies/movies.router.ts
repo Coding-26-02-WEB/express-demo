@@ -1,6 +1,6 @@
 import { Router } from "express"
-import { getMovieHandler, getMoviesHandler } from "./movies.controller";
-import { handleMovieErrors } from "./movies.errors";
+import { getMovieHandler, getMoviesHandler } from "./movies.controller.ts";
+import { handleMovieErrors } from "./movies.errors.ts";
 
 const router = Router();
 

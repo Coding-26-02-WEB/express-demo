@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
-import { getAllMovies, getMovieById } from "./movies.service";
-import { sendSuccess } from "../utils/sendSuccess";
+import { getAllMovies, getMovieById } from "./movies.service.ts";
+import { sendSuccess } from "../utils/sendSuccess.ts";
 
 export async function getMoviesHandler(req: Request, res: Response, next: NextFunction) {
     try {

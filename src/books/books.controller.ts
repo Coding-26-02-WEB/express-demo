@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
-import { getAllBooks, getBookById } from "./books.service";
-import { sendSuccess } from "../utils/sendSuccess";
+import { getAllBooks, getBookById } from "./books.service.ts";
+import { sendSuccess } from "../utils/sendSuccess.ts";
 
 export async function getBooksHandler(req: Request, res: Response, next: NextFunction) {
     try {

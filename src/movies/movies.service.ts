@@ -1,4 +1,4 @@
-import { MovieNotFoundError } from "./movies.errors";
+import { MovieNotFoundError } from "./movies.errors.ts";
 
 interface Crew {
     director: string;
