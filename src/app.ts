@@ -3,9 +3,20 @@ import booksRouter from "./books/books.router.ts";
 import moviesRouter from "./movies/movies.router.ts";
 import { checkApiKey } from "./middlewares/checkApiKey.ts";
 import morgan from "morgan";
+import swaggerJSDoc from "swagger-jsdoc";
+import swaggerUi from "swagger-ui-express"
 
+const swaggerSpec = swaggerJSDoc({
+    definition: {
+        openapi: "3.0.0",
+        info: { title: "Bücher-und-Filme-Api", version: "1.0.0" }
+    },
+    apis: ["./**/*.router.ts"]
+})
 
 const app = express();
+
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // app.use(logger);
 app.use(morgan("dev"));
