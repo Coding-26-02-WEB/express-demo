@@ -9,6 +9,18 @@ export class BookNotFoundError extends Error {
     }
 }
 
+export class BookSearchQueryMissingError extends Error {
+    constructor() {
+        super("The search query is missing.")
+    }
+}
+
+export class BookSearchFailedError extends Error {
+    constructor(query: string) {
+        super(`The book search for "${query}" failed.`)
+    }
+}
+
 export function handleBookErrors(err: Error, req: Request, res: Response, next: NextFunction) {
     console.error(err);
     if (err instanceof BookNotFoundError) {

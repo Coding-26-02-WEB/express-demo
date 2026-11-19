@@ -1,9 +1,17 @@
-import { BookNotFoundError } from "./books.errors.ts";
+import { BookNotFoundError, BookSearchFailedError } from "./books.errors.ts";
 
 interface Book {
-    id: number;
+    id: number | string;
     title: string;
     author: string;
+}
+
+interface OpenLibrarySearchResponse {
+    docs: {
+        author_name?: string[];
+        title: string;
+        key: string;
+    }[]
 }
 
 const books = [
@@ -27,4 +35,24 @@ export async function getBookById(id: number): Promise<Book> {
     const book = books.find((b) => b.id === id);
     if (!book) throw new BookNotFoundError(id);
     return book;
+}
+
+export async function searchBook(query: string): Promise<Book[]> {
+    const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`);
+
+    if (!response.ok) {
+        throw new BookSearchFailedError(query);
+    }
+
+    const data: OpenLibrarySearchResponse = await response.json();
+
+    console.log(data);
+
+    return data.docs.map(book => {
+        return {
+            title: book.title,
+            author: book.author_name ? book.author_name.join(", ") : "unknown",
+            id: book.key
+        }
+     } )
 }
