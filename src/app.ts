@@ -11,12 +11,19 @@ const swaggerSpec = swaggerJSDoc({
         openapi: "3.0.0",
         info: { title: "Bücher-und-Filme-Api", version: "1.0.0" }
     },
-    apis: ["./**/*.router.ts"]
+    apis: [`${import.meta.dirname}/**/*.router.ts`]
 })
 
 const app = express();
 
-app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+const CDN = "https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/5.17.14";
+app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+    customCssUrl: `${CDN}/swagger-ui.min.css`,
+    customJs: [
+        `${CDN}/swagger-ui-bundle.min.js`,
+        `${CDN}/swagger-ui-standalone-preset.min.js`,
+    ],
+}));
 
 // app.use(logger);
 app.use(morgan("dev"));
