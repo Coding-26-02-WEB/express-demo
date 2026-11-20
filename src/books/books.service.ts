@@ -1,10 +1,22 @@
-import { BookNotFoundError } from "./books.errors.ts";
+import { BookNotFoundError, BookSearchNotFoundError, NoSearchQueryError } from "./books.errors.ts";
 
 interface Book {
     id: number;
     title: string;
     author: string;
 }
+
+interface OpenLibraryBook {
+    key: string;
+    title: string;
+    author_name?: string[];
+}
+
+interface OpenLibrarySearchResult {
+    docs: OpenLibraryBook[];
+}
+
+const openApiBooks = "https://openlibrary.org/search.json?q=";
 
 const books = [
     { id: 1, title: "The Hobbit", author: "J.R.R. Tolkien" },
@@ -27,4 +39,25 @@ export async function getBookById(id: number): Promise<Book> {
     const book = books.find((b) => b.id === id);
     if (!book) throw new BookNotFoundError(id);
     return book;
+}
+
+export async function searchBooksByTitle(title: string | undefined): Promise<{ id: string; title: string; author: string | null }[]> {
+    const searchTitle = title?.trim();
+    if (!searchTitle) throw new NoSearchQueryError();
+
+    const lowerCaseTitle = searchTitle.toLowerCase();
+
+    const openApiResponse = await fetch(`${openApiBooks}${encodeURIComponent(lowerCaseTitle)}`);
+    if (!openApiResponse.ok) {
+        throw new Error(`Failed to fetch from Open Library API. Status: ${openApiResponse.status}`);
+    }
+
+    const openApiData: OpenLibrarySearchResult = await openApiResponse.json();
+    if (openApiData.docs.length === 0) throw new BookSearchNotFoundError(searchTitle);
+
+    return openApiData.docs.map(({ key, title, author_name }) => ({
+        id: key,
+        title,
+        author: author_name?.join(", ") ?? null,
+    }));
 }
