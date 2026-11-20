@@ -1,4 +1,4 @@
-import { BookNotFoundError } from "./books.errors.ts";
+import { BookNotFoundError, BookSearchFailedError } from "./books.errors.ts";
 
 interface Book {
     id: number;
@@ -27,4 +27,72 @@ export async function getBookById(id: number): Promise<Book> {
     const book = books.find((b) => b.id === id);
     if (!book) throw new BookNotFoundError(id);
     return book;
+}
+
+export interface BookSearchResult {
+    title: string;
+    author: string;
+    id: string;
+    firstPublishYear: number | null;
+}
+
+interface OpenLibraryDoc {
+    title?: unknown;
+    author_name?: unknown;
+    key?: unknown;
+    first_publish_year?: unknown;
+}
+
+interface OpenLibrarySearchResponse {
+    docs?: unknown;
+}
+
+const OPEN_LIBRARY_SEARCH_URL = "https://openlibrary.org/search.json";
+
+function textOrUnknown(value: unknown): string {
+    return typeof value === "string" && value.trim() !== "" ? value : "Unknown";
+}
+
+function authorFrom(authorName: unknown): string {
+    if (!Array.isArray(authorName)) return "Unknown";
+    const names = authorName.filter((name): name is string => typeof name === "string" && name.trim() !== "");
+    return names.length > 0 ? names.join(", ") : "Unknown";
+}
+
+function toSearchResult(doc: OpenLibraryDoc): BookSearchResult {
+    return {
+        title: textOrUnknown(doc.title),
+        author: authorFrom(doc.author_name),
+        id: textOrUnknown(doc.key),
+        firstPublishYear: typeof doc.first_publish_year === "number" ? doc.first_publish_year : null,
+    };
+}
+
+export async function searchBooks(query: string, limit?: number): Promise<BookSearchResult[]> {
+    let url = `${OPEN_LIBRARY_SEARCH_URL}?q=${encodeURIComponent(query)}`;
+    if (limit !== undefined) {
+        url += `&limit=${limit}`;
+    }
+
+    let response: Response;
+    try {
+        response = await fetch(url);
+    } catch {
+        throw new BookSearchFailedError();
+    }
+
+    if (!response.ok) {
+        throw new BookSearchFailedError();
+    }
+
+    let payload: OpenLibrarySearchResponse;
+    try {
+        payload = await response.json() as OpenLibrarySearchResponse;
+    } catch {
+        throw new BookSearchFailedError();
+    }
+
+    const docs = Array.isArray(payload.docs) ? payload.docs as OpenLibraryDoc[] : [];
+    const results = docs.map(toSearchResult);
+    return limit === undefined ? results : results.slice(0, limit);
 }
