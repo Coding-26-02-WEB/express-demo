@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getBookHandler, getBooksHandler } from "./books.controller.ts";
+import { getBookHandler, getBooksHandler, getBooksSearchHandler } from "./books.controller.ts";
 import { handleBookErrors } from "./books.errors.ts";
 
 const router = Router();
@@ -26,6 +26,32 @@ router.get("/", getBooksHandler);
  * @openapi
  * /books/{id}:
  *   get:
+ *     summary: Bücher durch einen Query suchen
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: apiKey
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Liste passender Bücher
+ *       404:
+ *         description: Kein Buch mit der ID wurde gefunden.
+ *      500:
+ *          description: Ein API Fehler
+ */
+router.get("/search", getBooksSearchHandler);
+
+/**
+ * @openapi
+ * /books/{id}:
+ *   get:
  *     summary: Ein Buch mit einer bestimmten ID holen
  *     parameters:
  *       - in: path
@@ -45,6 +71,7 @@ router.get("/", getBooksHandler);
  *         description: Kein Buch mit der ID wurde gefunden.
  */
 router.get("/:id", getBookHandler);
+
 
 router.use(handleBookErrors);
 

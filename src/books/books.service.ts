@@ -1,9 +1,20 @@
-import { BookNotFoundError } from "./books.errors.ts";
+import { title } from "node:process";
+import { ApiError, BookNotFoundError } from "./books.errors.ts";
 
 interface Book {
-    id: number;
+    id: number | string;
     title: string;
     author: string;
+}
+
+interface OpenLibraryData {
+    docs: Array<BookOpenLibrary>
+}
+
+type BookOpenLibrary = {
+    author_name: string[]
+    title: string
+    key: string
 }
 
 const books = [
@@ -27,4 +38,25 @@ export async function getBookById(id: number): Promise<Book> {
     const book = books.find((b) => b.id === id);
     if (!book) throw new BookNotFoundError(id);
     return book;
+}
+
+export async function searchBooks(query: string): Promise<Book[]> {
+    const data = await fetch(`https://openlibrary.org/search.json?q=${query}`)
+    if (!data.ok) {
+        throw new ApiError(`${data.status}: ${data.statusText}`)
+    }
+
+    const books: OpenLibraryData = await data.json() as unknown as OpenLibraryData
+    
+    const response: Book[] = books.docs.map((book => ({
+        id: book.key,
+        title: book.title,
+        author: book.author_name.length > 0 ? book.author_name[0] : "--"
+    })))
+
+    if (response.length < 1) {
+        throw new BookNotFoundError()
+    }
+
+    return response
 }
