@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from "express";
-import { getAllBooks, getBookById } from "./books.service.ts";
+import { getAllBooks, getBookById, searchBook } from "./books.service.ts";
 import { sendSuccess } from "../utils/sendSuccess.ts";
 
 export async function getBooksHandler(req: Request, res: Response, next: NextFunction) {
@@ -16,4 +16,14 @@ export async function getBookHandler(req: Request, res: Response, next: NextFunc
     } catch (error) {
         next(error);
     }
+}
+
+export async function searchBookHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        const query = typeof req.query.q === "string" ? req.query.q : "";
+
+        sendSuccess(res, await searchBook(query));
+   } catch (error) {
+        next(error);
+   }
 }

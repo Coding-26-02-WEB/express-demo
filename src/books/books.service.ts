@@ -28,3 +28,14 @@ export async function getBookById(id: number): Promise<Book> {
     if (!book) throw new BookNotFoundError(id);
     return book;
 }
+
+export async function searchBook(query: string): Promise<any>{
+
+    const url: string = "https://openlibrary.org/search.json?q="+query;
+
+console.log(url);
+    const response = await fetch(url);
+    if (!response.ok) { /* Fehler werfen */ }
+    const data = await response.json();
+    return data;
+}

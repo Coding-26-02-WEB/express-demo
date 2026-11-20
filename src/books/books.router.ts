@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getBookHandler, getBooksHandler } from "./books.controller.ts";
+import { getBookHandler, getBooksHandler, searchBookHandler } from "./books.controller.ts";
 import { handleBookErrors } from "./books.errors.ts";
 
 const router = Router();
@@ -21,6 +21,7 @@ const router = Router();
  */
 router.get("/", getBooksHandler);
 
+router.get("/search", searchBookHandler);
 
 /**
  * @openapi
@@ -45,6 +46,7 @@ router.get("/", getBooksHandler);
  *         description: Kein Buch mit der ID wurde gefunden.
  */
 router.get("/:id", getBookHandler);
+
 
 router.use(handleBookErrors);
 
