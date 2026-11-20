@@ -29,6 +29,10 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 app.use(morgan("dev"));
 // app.use(checkApiKey);
 
+app.get("/", (req, res) => {
+    res.status(200).json({ message: "API läuft." });
+})
+
 app.get("/status", (req, res) => {
     res.status(200).json({ message: "Server is running." })
 })
