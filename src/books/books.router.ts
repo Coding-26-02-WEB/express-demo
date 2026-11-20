@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getBookHandler, getBooksHandler } from "./books.controller.ts";
+import { getBookHandler, getBooksHandler, searchBooksHandler } from "./books.controller.ts";
 import { handleBookErrors } from "./books.errors.ts";
 
 const router = Router();
@@ -20,6 +20,38 @@ const router = Router();
  *         description: Liste aller Bücher
  */
 router.get("/", getBooksHandler);
+
+
+/**
+ * @openapi
+ * /books/search:
+ *   get:
+ *     summary: Bücher über die Open-Library-API suchen
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: limit
+ *         required: false
+ *         schema:
+ *           type: integer
+ *       - in: query
+ *         name: apiKey
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Aufgeräumte Liste gefundener Bücher
+ *       400:
+ *         description: Kein Suchbegriff angegeben
+ *       502:
+ *         description: Open-Library nicht erreichbar oder Fehler
+ */
+router.get("/search", searchBooksHandler);
 
 
 /**

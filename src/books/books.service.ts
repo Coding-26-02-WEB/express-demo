@@ -1,4 +1,4 @@
-import { BookNotFoundError } from "./books.errors.ts";
+import { BookNotFoundError, BookSearchFailedError } from "./books.errors.ts";
 
 interface Book {
     id: number;
@@ -27,4 +27,55 @@ export async function getBookById(id: number): Promise<Book> {
     const book = books.find((b) => b.id === id);
     if (!book) throw new BookNotFoundError(id);
     return book;
+}
+
+export interface SearchResult {
+    title: string;
+    author: string;
+    id: string;
+}
+
+interface OpenLibraryDoc {
+    title?: unknown;
+    author_name?: unknown;
+    key?: unknown;
+}
+
+interface OpenLibraryResponse {
+    docs?: unknown;
+}
+
+export async function searchBooks(query: string, limit?: number): Promise<SearchResult[]> {
+    const params = new URLSearchParams({ q: query });
+    if (limit !== undefined) params.set("limit", String(limit));
+    const url = `https://openlibrary.org/search.json?${params.toString()}`;
+
+    let response: Response;
+    try {
+        response = await fetch(url);
+    } catch (error) {
+        throw new BookSearchFailedError(query, "Open-Library is not reachable");
+    }
+
+    if (!response.ok) {
+        throw new BookSearchFailedError(query, `Open-Library answered with status ${response.status}`);
+    }
+
+    let payload: OpenLibraryResponse;
+    try {
+        payload = (await response.json()) as OpenLibraryResponse;
+    } catch (error) {
+        throw new BookSearchFailedError(query, "Open-Library answered with invalid JSON");
+    }
+
+    const docs: OpenLibraryDoc[] = Array.isArray(payload.docs) ? (payload.docs as OpenLibraryDoc[]) : [];
+    const results = docs.map((doc) => ({
+        title: typeof doc.title === "string" && doc.title ? doc.title : "unknown",
+        author: Array.isArray(doc.author_name) && doc.author_name.length > 0
+            ? doc.author_name.join(", ")
+            : "unknown",
+        id: typeof doc.key === "string" ? doc.key : "unknown",
+    }));
+
+    return limit !== undefined ? results.slice(0, limit) : results;
 }
