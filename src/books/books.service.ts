@@ -1,4 +1,4 @@
-import { BookNotFoundError } from "./books.errors.ts";
+import { BookNotFoundError, BookSearchFailedError } from "./books.errors.ts";
 
 interface Book {
     id: number;
@@ -27,4 +27,58 @@ export async function getBookById(id: number): Promise<Book> {
     const book = books.find((b) => b.id === id);
     if (!book) throw new BookNotFoundError(id);
     return book;
+}
+
+interface BookSearchResult {
+    title: string;
+    author: string;
+    id: string;
+}
+
+export async function searchBooks(query: string): Promise<BookSearchResult[]> {
+    try {
+        const response = await fetch(
+            `https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`,
+        );
+        if (!response.ok) throw new BookSearchFailedError();
+
+        const data: unknown = await response.json();
+        if (
+            typeof data !== "object" ||
+            data === null ||
+            !("docs" in data) ||
+            !Array.isArray(data.docs)
+        ) {
+            throw new BookSearchFailedError();
+        }
+
+        const docs: unknown[] = data.docs;
+        return docs.flatMap((book): BookSearchResult[] => {
+            if (
+                typeof book !== "object" ||
+                book === null ||
+                !("title" in book) ||
+                !("key" in book)
+            ) {
+                return [];
+            }
+
+            const title = book.title;
+            const id = book.key;
+            if (typeof title !== "string" || typeof id !== "string") return [];
+
+            const authors = "author_name" in book && Array.isArray(book.author_name)
+                ? book.author_name.filter((author): author is string => typeof author === "string")
+                : [];
+
+            return [{
+                title,
+                author: authors.join(", ") || "Unknown",
+                id,
+            }];
+        });
+    } catch (error) {
+        if (error instanceof BookSearchFailedError) throw error;
+        throw new BookSearchFailedError();
+    }
 }

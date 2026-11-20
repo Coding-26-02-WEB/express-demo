@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getBookHandler, getBooksHandler } from "./books.controller.ts";
+import { getBookHandler, getBooksHandler, searchBooksHandler } from "./books.controller.ts";
 import { handleBookErrors } from "./books.errors.ts";
 
 const router = Router();
@@ -21,6 +21,32 @@ const router = Router();
  */
 router.get("/", getBooksHandler);
 
+// Dieser OpenAPI-Block dokumentiert die Suchroute in Swagger unter /docs.
+/**
+ * @openapi
+ * /books/search:
+ *   get:
+ *     summary: Bücher über Open Library suchen
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         required: true
+ *         schema:
+ *           type: string
+ *       - in: query
+ *         name: apiKey
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Aufgeräumte Liste der Suchtreffer
+ *       400:
+ *         description: Kein Suchbegriff angegeben
+ *       502:
+ *         description: Suche bei Open Library fehlgeschlagen
+ */
+router.get("/search", searchBooksHandler);
 
 /**
  * @openapi
