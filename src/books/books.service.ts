@@ -1,4 +1,3 @@
-import { title } from "node:process";
 import { ApiError, BookNotFoundError } from "./books.errors.ts";
 
 interface Book {
@@ -8,11 +7,11 @@ interface Book {
 }
 
 interface OpenLibraryData {
-    docs: Array<BookOpenLibrary>
+    docs: BookOpenLibrary[]
 }
 
 type BookOpenLibrary = {
-    author_name: string[]
+    author_name?: string[]
     title: string
     key: string
 }
@@ -41,7 +40,7 @@ export async function getBookById(id: number): Promise<Book> {
 }
 
 export async function searchBooks(query: string): Promise<Book[]> {
-    const data = await fetch(`https://openlibrary.org/search.json?q=${query}`)
+    const data = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(query)}`)
     if (!data.ok) {
         throw new ApiError(`${data.status}: ${data.statusText}`)
     }
@@ -49,9 +48,9 @@ export async function searchBooks(query: string): Promise<Book[]> {
     const books: OpenLibraryData = await data.json() as unknown as OpenLibraryData
     
     const response: Book[] = books.docs.map((book => ({
-        id: book.key,
-        title: book.title,
-        author: book.author_name.length > 0 ? book.author_name[0] : "--"
+        id: book?.key || "--",
+        title: book?.title || "--",
+        author: book?.author_name?.join(", ") || "--"
     })))
 
     if (response.length < 1) {

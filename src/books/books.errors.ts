@@ -22,7 +22,7 @@ export function handleBookErrors(err: Error, req: Request, res: Response, next: 
     }
 
     if (err instanceof ApiError) {
-        return res.status(500).json({ erro: err.message })
+        return res.status(502).json({ erro: err.message })
     }
 
     next(err);

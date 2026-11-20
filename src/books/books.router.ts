@@ -43,7 +43,7 @@ router.get("/", getBooksHandler);
  *         description: Liste passender Bücher
  *       404:
  *         description: Kein Buch mit der ID wurde gefunden.
- *      500:
+ *       502:
  *          description: Ein API Fehler
  */
 router.get("/search", getBooksSearchHandler);
