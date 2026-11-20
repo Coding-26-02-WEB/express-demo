@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getBookHandler, getBooksHandler } from "./books.controller.ts";
+import { getBookHandler, getBooksHandler, searchBooksHandler } from "./books.controller.ts";
 import { handleBookErrors } from "./books.errors.ts";
 
 const router = Router();
@@ -44,6 +44,8 @@ router.get("/", getBooksHandler);
  *       404:
  *         description: Kein Buch mit der ID wurde gefunden.
  */
+router.get("/search", searchBooksHandler);
+
 router.get("/:id", getBookHandler);
 
 router.use(handleBookErrors);
