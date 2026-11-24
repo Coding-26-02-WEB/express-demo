@@ -1,0 +1,24 @@
+services:
+  db:
+    image: postgres:18            # welches Image        
+    container_name: postgres-db   # Name des Containers  
+    restart: always               # automatischer Neustart 
+    environment:                  # Umgebungsvariablen   
+      POSTGRES_USER: admin        #   -> User
+      POSTGRES_PASSWORD: 123456   #   -> Passwort
+      POSTGRES_DB: books_movies_db      #   -> Start-Datenbank
+    ports:
+      # Port freigeben (= -p) "deinRechner:imContainer":
+      #   links  = Port auf deinem Rechner (frei wählbar)
+      #   rechts = Port im Container, wo Postgres lauscht (muss 5432 sein)
+      - "5432:5432"
+    volumes:
+      # Daten dauerhaft speichern (= -v) "speicher:ordnerImContainer":
+      #   links  = pgdata: ein Speicher, den Docker auf deinem Rechner anlegt (außerhalb des Containers)
+      #   rechts = der Ordner im Container, in dem Postgres seine Daten ablegt
+      #            (ab Postgres 18: /var/lib/postgresql, NICHT mehr .../data)
+      #   -> Postgres schreibt dorthin, die Daten liegen aber in pgdata -> überleben Löschen/Neustart
+      - pgdata:/var/lib/postgresql
+
+volumes:
+  pgdata:                         # meldet den Speicher "pgdata" bei Docker an
