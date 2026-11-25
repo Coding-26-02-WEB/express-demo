@@ -5,6 +5,7 @@ import { checkApiKey } from "./middlewares/checkApiKey.ts";
 import morgan from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
 import swaggerUi from "swagger-ui-express"
+import getPostgresPool from "./utils/pool.postgres.ts";
 
 const swaggerSpec = swaggerJSDoc({
     definition: {
@@ -38,6 +39,12 @@ app.use("/movies", moviesRouter);
 
 app.get("/crash", (req, res) => {
     throw Error("Ups, es ist etwas schief gelaufen!!!")
+})
+
+app.get("/date", async (req, res) => {
+    const pool = getPostgresPool();
+    const dbResponse = await pool.query("SELECT NOW()");
+    res.status(200).json(dbResponse.rows[0]);
 })
 
 app.use((req, res) => {

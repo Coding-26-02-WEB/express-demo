@@ -4,14 +4,14 @@ services:
     container_name: postgres-db   # Name des Containers  
     restart: always               # automatischer Neustart 
     environment:                  # Umgebungsvariablen   
-      POSTGRES_USER: admin        #   -> User
-      POSTGRES_PASSWORD: 123456   #   -> Passwort
-      POSTGRES_DB: books_movies_db      #   -> Start-Datenbank
+      POSTGRES_USER: ${DB_USER}        #   -> User
+      POSTGRES_PASSWORD: ${DB_PASSWORD}   #   -> Passwort
+      POSTGRES_DB: ${DB_NAME}      #   -> Start-Datenbank
     ports:
       # Port freigeben (= -p) "deinRechner:imContainer":
       #   links  = Port auf deinem Rechner (frei wählbar)
       #   rechts = Port im Container, wo Postgres lauscht (muss 5432 sein)
-      - "5432:5432"
+      - "${DB_PORT}:5432"
     volumes:
       # Daten dauerhaft speichern (= -v) "speicher:ordnerImContainer":
       #   links  = pgdata: ein Speicher, den Docker auf deinem Rechner anlegt (außerhalb des Containers)
