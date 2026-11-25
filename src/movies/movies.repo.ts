@@ -3,16 +3,22 @@ import { Movie } from "./movies.types.ts";
 
 const pool = getPostgresPool();
 
-// Baut aus der flachen movies-Zeile + JOIN auf die Genres direkt die API-Form:
-// crew als Objekt, genres als (alphabetisch sortiertes) Array, [] wenn kein Genre
+// So kommt eine Zeile aus der DB: Crew flach als Spalten, Genres schon als Array
+interface MovieRow {
+    id: number;
+    title: string;
+    year: number;
+    director: string;
+    editor: string;
+    cinematographer: string;
+    genres: string[];
+}
+
+// Genres per JOIN als (alphabetisch sortiertes) Array, [] wenn kein Genre
 const MOVIE_SELECT = `
     SELECT
         m.id, m.title, m.year,
-        json_build_object(
-            'director', m.director,
-            'editor', m.editor,
-            'cinematographer', m.cinematographer
-        ) AS crew,
+        m.director, m.editor, m.cinematographer,
         COALESCE(
             array_agg(g.name ORDER BY g.name) FILTER (WHERE g.name IS NOT NULL),
             '{}'
@@ -22,18 +28,33 @@ const MOVIE_SELECT = `
     LEFT JOIN genres g        ON g.id = mg.genre_id
 `;
 
+// Baut aus der flachen DB-Zeile die API-Form mit crew als Objekt
+function toMovie(row: MovieRow): Movie {
+    return {
+        id: row.id,
+        title: row.title,
+        year: row.year,
+        crew: {
+            director: row.director,
+            editor: row.editor,
+            cinematographer: row.cinematographer,
+        },
+        genres: row.genres,
+    };
+}
+
 export async function getAllMovies(): Promise<Movie[]> {
-    const result = await pool.query(
+    const result = await pool.query<MovieRow>(
         `${MOVIE_SELECT} GROUP BY m.id ORDER BY m.id`
     );
-    return result.rows;
+    return result.rows.map(toMovie);
 }
 
 export async function getMovieById(id: number): Promise<Movie | null> {
-    const result = await pool.query(
+    const result = await pool.query<MovieRow>(
         `${MOVIE_SELECT} WHERE m.id = $1 GROUP BY m.id`,
         [id]
     );
     if (result.rows.length === 0) return null;
-    return result.rows[0];
+    return toMovie(result.rows[0]);
 }

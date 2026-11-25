@@ -39,16 +39,12 @@
 - Die Genres werden alphabetisch sortiert, damit die Reihenfolge immer gleich ist. Bisher war sie zufällig vom Array vorgegeben, z.B. „Crime, Drama“. Das ist die einzige sichtbare Änderung.
 - **ID prüfen:** `/movies/abc` gibt heute `Number("abc")` = `NaN` an Postgres weiter, und das endet in einem **500**. Neu: Ist die ID keine positive ganze Zahl, wird `InvalidMovieIdError` geworfen und der Server antwortet mit **400**.
 
-**SQL für die Umwandlung** (die gleiche Basis-Abfrage für alle und für einen Film):
+**SQL** (die gleiche Basis-Abfrage für alle und für einen Film):
 
 ```sql
 SELECT
     m.id, m.title, m.year,
-    json_build_object(
-        'director', m.director,
-        'editor', m.editor,
-        'cinematographer', m.cinematographer
-    ) AS crew,
+    m.director, m.editor, m.cinematographer,
     COALESCE(
         array_agg(g.name ORDER BY g.name) FILTER (WHERE g.name IS NOT NULL),
         '{}'
@@ -61,7 +57,7 @@ GROUP BY m.id
 ORDER BY m.id;
 ```
 
-`pg` wandelt `json` automatisch in ein Objekt und `varchar[]` in `string[]` um. Im TypeScript-Code muss man also nichts mehr umbauen. (Alternativ könnte man flache Zeilen holen und in TS mit `reduce` zusammenbauen. Das wäre mehr Code und fehleranfälliger, deshalb nicht empfohlen.)
+`pg` wandelt `varchar[]` automatisch in `string[]` um. Die Crew kommt flach als Spalten aus der DB. Das Umbauen in das `crew`-Objekt passiert in TypeScript, nicht in SQL: Im Repo beschreibt ein Typ `MovieRow` die DB-Zeile, und eine Funktion `toMovie(row)` baut daraus den `Movie` für die API. So bleibt das SQL einfach, und das Mapping ist typgeprüft.
 
 ### 1.2 Optional (eigener Branch, erst nach dem Pflichtteil)
 
@@ -91,6 +87,7 @@ Wichtig: `/search` muss im Router **vor** `/:id` stehen, sonst wird „search“
 - `getAllMovies(): Promise<Movie[]>`
 - `getMovieById(id: number): Promise<Movie | null>`
 - Die Basis-Abfrage einmal als Konstante `MOVIE_SELECT` anlegen und für beide Funktionen nutzen, damit sie nicht doppelt im Code steht.
+- `pool.query<MovieRow>(...)` typisieren und die Zeilen mit `toMovie` in die API-Form bringen (`crew`-Objekt).
 - `null` zurückgeben, wenn nichts gefunden wird. Fehler werden nicht im Repo geworfen.
 
 **Schritt 3: Service.** In `src/movies/movies.service.ts` das fest eingetragene Array löschen und die Repo-Funktionen aufrufen (mit Alias-Import wie bei Books). Ist das Ergebnis `null`, `MovieNotFoundError` werfen.
