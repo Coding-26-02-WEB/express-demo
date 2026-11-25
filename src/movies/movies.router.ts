@@ -30,6 +30,8 @@ router.get("/", getMoviesHandler);
  *     responses:
  *       200:
  *         description: Ein Film
+ *       400:
+ *         description: Die ID ist keine positive ganze Zahl.
  *       404:
  *         description: Kein Film mit der ID wurde gefunden.
  */
