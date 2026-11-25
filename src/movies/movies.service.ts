@@ -1,18 +1,5 @@
 import { MovieNotFoundError } from "./movies.errors.ts";
-
-interface Crew {
-    director: string;
-    editor: string;
-    cinematographer: string;
-}
-
-interface Movie {
-    id: number;
-    title: string;
-    crew: Crew;
-    year: number;
-    genres: string[];
-}
+import { Movie } from "./movies.types.ts";
 
 const movies: Movie[] = [
     {
