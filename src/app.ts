@@ -28,6 +28,7 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // app.use(logger);
 app.use(morgan("dev"));
+app.use(express.json());
 // app.use(checkApiKey);
 
 app.get("/status", (req, res) => {
@@ -52,6 +53,10 @@ app.use((req, res) => {
 })
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    // express.json() wirft einen SyntaxError, wenn der Request-Body kein gültiges JSON ist
+    if (err instanceof SyntaxError && "body" in err) {
+        return res.status(400).json({ error: "Invalid JSON in request body." });
+    }
     console.error(err.stack);
     res.status(500).json({ error: "Internal server error."});
 })
