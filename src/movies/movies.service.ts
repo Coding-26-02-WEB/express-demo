@@ -1,12 +1,12 @@
 import { MovieNotFoundError } from "./movies.errors.ts";
 
-interface Crew {
+export interface Crew {
     director: string;
     editor: string;
     cinematographer: string;
 }
 
-interface Movie {
+export interface Movie {
     id: number;
     title: string;
     crew: Crew;
