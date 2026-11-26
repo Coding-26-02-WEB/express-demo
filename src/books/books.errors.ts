@@ -22,8 +22,8 @@ export class BookSearchFailedError extends Error {
 }
 
 export class BookDataInvalidError extends Error {
-    constructor() {
-        super("Invalid book data. Title and author are required.")
+    constructor(reason: string) {
+        super(`Invalid book data. ${reason}`)
     }
 }
 

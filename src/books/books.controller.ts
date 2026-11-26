@@ -1,6 +1,6 @@
 import { Response, Request, NextFunction } from "express";
 import { createBook, getAllBooks, getBookById, searchBook } from "./books.service.ts";
-import { BookDataInvalidError, BookSearchQueryMissingError } from "./books.errors.ts";
+import { BookSearchQueryMissingError } from "./books.errors.ts";
 import { sendSuccess } from "../utils/sendSuccess.ts";
 
 export async function getBooksHandler(req: Request, res: Response, next: NextFunction) {
@@ -31,10 +31,7 @@ export async function searchBooksHandler(req: Request, res: Response, next: Next
 
 export async function createBookHandler(req: Request, res: Response, next: NextFunction) {
     try {
-        const { title, author } = req.body ?? {};
-        if (typeof title !== "string" || !title.trim()) throw new BookDataInvalidError();
-        if (typeof author !== "string" || !author.trim()) throw new BookDataInvalidError();
-        sendSuccess(res, await createBook({ title: title.trim(), author: author.trim() }), 201);
+        sendSuccess(res, await createBook(req.body), 201);
     } catch (error) {
         next(error);
     }

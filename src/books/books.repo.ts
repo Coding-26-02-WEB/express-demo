@@ -27,8 +27,8 @@ export async function searchBook(query: string): Promise<Book[]> {
 
 export async function createBook(book: NewBook): Promise<Book> {
     const result = await pool.query(
-        `INSERT INTO books (title, author) VALUES ($1, $2) RETURNING *`,
-        [book.title, book.author]
+        `INSERT INTO books (title, author, release_date) VALUES ($1, $2, $3) RETURNING *`,
+        [book.title, book.author, book.release_date]
     );
     return result.rows[0];
 }
