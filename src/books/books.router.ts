@@ -1,5 +1,5 @@
 import { Router } from "express"
-import { getBookHandler, getBooksHandler, searchBooksHandler } from "./books.controller.ts";
+import { createBookHandler, getBookHandler, getBooksHandler, searchBooksHandler } from "./books.controller.ts";
 import { handleBookErrors } from "./books.errors.ts";
 
 const router = Router();
@@ -20,6 +20,44 @@ const router = Router();
  *         description: Liste aller Bücher
  */
 router.get("/", getBooksHandler);
+
+
+/**
+ * @openapi
+ * /books:
+ *   post:
+ *     summary: Ein neues Buch anlegen
+ *     parameters:
+ *       - in: query
+ *         name: apiKey
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - title
+ *               - author
+ *             properties:
+ *               title:
+ *                 type: string
+ *               author:
+ *                 type: string
+ *               release_date:
+ *                 type: string
+ *                 format: date
+ *                 example: "1937-09-21"
+ *     responses:
+ *       201:
+ *         description: Das angelegte Buch
+ *       400:
+ *         description: Titel oder Autor fehlt, oder release_date ist kein gültiges Datum (YYYY-MM-DD).
+ */
+router.post("/", createBookHandler);
 
 
 /**

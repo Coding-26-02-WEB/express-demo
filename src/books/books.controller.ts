@@ -1,5 +1,5 @@
 import { Response, Request, NextFunction } from "express";
-import { getAllBooks, getBookById, searchBook } from "./books.service.ts";
+import { createBook, getAllBooks, getBookById, searchBook } from "./books.service.ts";
 import { BookSearchQueryMissingError } from "./books.errors.ts";
 import { sendSuccess } from "../utils/sendSuccess.ts";
 
@@ -24,6 +24,14 @@ export async function searchBooksHandler(req: Request, res: Response, next: Next
         const { query } = req.query;
         if (typeof query !== "string" || !query) throw new BookSearchQueryMissingError();
         sendSuccess(res, await searchBook(query));
+    } catch (error) {
+        next(error);
+    }
+}
+
+export async function createBookHandler(req: Request, res: Response, next: NextFunction) {
+    try {
+        sendSuccess(res, await createBook(req.body), 201);
     } catch (error) {
         next(error);
     }

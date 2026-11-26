@@ -21,6 +21,12 @@ export class BookSearchFailedError extends Error {
     }
 }
 
+export class BookDataInvalidError extends Error {
+    constructor(reason: string) {
+        super(`Invalid book data. ${reason}`)
+    }
+}
+
 export function handleBookErrors(err: Error, req: Request, res: Response, next: NextFunction) {
     console.error(err);
     if (err instanceof BookNotFoundError) {
@@ -31,6 +37,9 @@ export function handleBookErrors(err: Error, req: Request, res: Response, next: 
     }
     if (err instanceof BookSearchFailedError) {
         return res.status(502).json({ error: err.message })
+    }
+    if (err instanceof BookDataInvalidError) {
+        return res.status(400).json({ error: err.message })
     }
 
     next(err);

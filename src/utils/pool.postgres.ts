@@ -1,5 +1,9 @@
-import { Pool } from "pg";
+import { Pool, types } from "pg";
 import "dotenv/config";
+
+// DATE-Spalten als String ("1937-09-21") statt als JS-Date zurückgeben.
+// Sonst wird das Datum in lokaler Zeit erzeugt und im JSON nach UTC verschoben (-> ein Tag zu früh).
+types.setTypeParser(types.builtins.DATE, (value) => value);
 
 let pool: Pool | null = null;
 
