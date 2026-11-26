@@ -1,5 +1,7 @@
+import { DatabaseError } from "pg";
 import getPostgresPool from "../utils/pool.postgres";
 import { Book, NewBook } from "./books.service";
+import { BookAlreadyExistsError } from "./books.errors.ts";
 
 const pool = getPostgresPool();
 
@@ -26,9 +28,17 @@ export async function searchBook(query: string): Promise<Book[]> {
 }
 
 export async function createBook(book: NewBook): Promise<Book> {
-    const result = await pool.query(
-        `INSERT INTO books (title, author, release_date) VALUES ($1, $2, $3) RETURNING *`,
-        [book.title, book.author, book.release_date]
-    );
-    return result.rows[0];
+    try {
+        const result = await pool.query(
+            `INSERT INTO books (title, author, release_date) VALUES ($1, $2, $3) RETURNING *`,
+            [book.title, book.author, book.release_date]
+        );
+        return result.rows[0];
+    } catch (error) {
+        // 23505 = unique_violation: Titel + Autor gibt es schon (Index books_title_author_unique)
+        if (error instanceof DatabaseError && error.code === "23505" && error.constraint === "books_title_author_unique") {
+            throw new BookAlreadyExistsError(book.title, book.author);
+        }
+        throw error;
+    }
 }

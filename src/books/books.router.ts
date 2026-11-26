@@ -56,6 +56,8 @@ router.get("/", getBooksHandler);
  *         description: Das angelegte Buch
  *       400:
  *         description: Titel oder Autor fehlt, oder release_date ist kein gültiges Datum (YYYY-MM-DD).
+ *       409:
+ *         description: Ein Buch mit diesem Titel und Autor gibt es schon (Groß-/Kleinschreibung egal).
  */
 router.post("/", createBookHandler);
 
