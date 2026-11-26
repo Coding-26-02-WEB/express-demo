@@ -1,11 +1,13 @@
 import { BookNotFoundError, BookSearchFailedError } from "./books.errors.ts";
-import { getAllBooks as getAllBooksRepo, getBookById as getBookByIdRepo, searchBook as searchBookRepo} from "./books.repo.ts";
+import { createBook as createBookRepo, getAllBooks as getAllBooksRepo, getBookById as getBookByIdRepo, searchBook as searchBookRepo} from "./books.repo.ts";
 
 export interface Book {
     id: number | string;
     title: string;
     author: string;
 }
+
+export type NewBook = Omit<Book, "id">;
 
 interface OpenLibrarySearchResponse {
     docs: {
@@ -27,4 +29,8 @@ export async function getBookById(id: number): Promise<Book> {
 
 export async function searchBook(query: string): Promise<Book[]> {
     return await searchBookRepo(query);
+}
+
+export async function createBook(book: NewBook): Promise<Book> {
+    return await createBookRepo(book);
 }

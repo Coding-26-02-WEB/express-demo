@@ -1,5 +1,5 @@
 import getPostgresPool from "../utils/pool.postgres";
-import { Book } from "./books.service";
+import { Book, NewBook } from "./books.service";
 
 const pool = getPostgresPool();
 
@@ -23,4 +23,12 @@ export async function searchBook(query: string): Promise<Book[]> {
         [`%${query}%`]
     );
     return result.rows;
+}
+
+export async function createBook(book: NewBook): Promise<Book> {
+    const result = await pool.query(
+        `INSERT INTO books (title, author) VALUES ($1, $2) RETURNING *`,
+        [book.title, book.author]
+    );
+    return result.rows[0];
 }
