@@ -3,7 +3,6 @@ import type { Movie } from "./movies.service.ts";
 
 const pool = getPostgresPool();
 
-// So kommt eine Zeile aus der Datenbank zurück (flach + genres als Array)
 interface MovieRow {
     id: number;
     title: string;
@@ -14,8 +13,6 @@ interface MovieRow {
     genres: string[];
 }
 
-// Gemeinsamer Teil der Abfrage: Film + alle Genres als Array.
-// LEFT JOIN, damit auch Filme ohne Genre gefunden werden.
 const SELECT_MOVIES = `
     SELECT
         m.id, m.title, m.year,
