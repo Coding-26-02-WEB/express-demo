@@ -5,6 +5,10 @@ CREATE TABLE books (
     release_date DATE
 );
 
+-- Jede Kombination aus Titel + Autor nur einmal, ohne Rücksicht auf Groß-/Kleinschreibung.
+-- Leerzeichen am Rand entfernt schon der Service vor dem Insert.
+CREATE UNIQUE INDEX books_title_author_unique ON books (lower(title), lower(author));
+
 INSERT INTO books (title, author, release_date) VALUES
     ('The Hobbit', 'J.R.R. Tolkien', '1937-09-21'),
     ('Dune', 'Frank Herbert', '1965-08-01'),

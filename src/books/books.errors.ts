@@ -27,6 +27,12 @@ export class BookDataInvalidError extends Error {
     }
 }
 
+export class BookAlreadyExistsError extends Error {
+    constructor(title: string, author: string) {
+        super(`Book already exists. Title: ${title}, Author: ${author}`)
+    }
+}
+
 export function handleBookErrors(err: Error, req: Request, res: Response, next: NextFunction) {
     console.error(err);
     if (err instanceof BookNotFoundError) {
@@ -40,6 +46,9 @@ export function handleBookErrors(err: Error, req: Request, res: Response, next: 
     }
     if (err instanceof BookDataInvalidError) {
         return res.status(400).json({ error: err.message })
+    }
+    if (err instanceof BookAlreadyExistsError) {
+        return res.status(409).json({ error: err.message })
     }
 
     next(err);
