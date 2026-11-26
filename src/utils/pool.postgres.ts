@@ -13,6 +13,9 @@ export default function getPostgresPool(): Pool {
             database: process.env.DB_NAME,
             max: 10,
         })
+        // Bricht eine Idle-Verbindung ab (z. B. DB-Neustart), wirft der Pool ein "error"-Event.
+        // Ohne Listener würde Node den ganzen Prozess beenden.
+        pool.on("error", (err) => console.error("Postgres pool error:", err.message));
     }
     return pool;
 }
