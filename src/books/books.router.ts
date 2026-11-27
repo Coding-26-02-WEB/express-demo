@@ -1,6 +1,7 @@
 import { Router } from "express"
 import { createBookHandler, getBookHandler, getBooksHandler, searchBooksHandler } from "./books.controller.ts";
 import { handleBookErrors } from "./books.errors.ts";
+import reviewsRouter from "../reviews/reviews.router.ts";
 
 const router = Router();
 
@@ -88,6 +89,7 @@ router.post("/", createBookHandler);
  */
 router.get("/search", searchBooksHandler);
 
+router.use("/:id/reviews", reviewsRouter);
 
 /**
  * @openapi
