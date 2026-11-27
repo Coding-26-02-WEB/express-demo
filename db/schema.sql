@@ -21,6 +21,21 @@ INSERT INTO books (title, author, release_date) VALUES
     ('Mistborn: The Final Empire', 'Brandon Sanderson', '2006-07-17'),
     ('The Hitchhiker''s Guide to the Galaxy', 'Douglas Adams', '1979-10-12');
 
+CREATE TABLE reviews (
+    id serial primary key,
+    book_id integer NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+    author varchar NOT NULL,
+    rating integer NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment varchar NOT NULL
+);
+
+INSERT INTO reviews (book_id, author, rating, comment) VALUES
+    (1, 'Alice', 5, 'A timeless adventure.'),
+    (1, 'Bob', 4, 'Wonderful world-building.'),
+    (2, 'Alice', 5, 'A masterpiece of science fiction.'),
+    (3, 'Charlie', 4, 'An epic story with memorable characters.'),
+    (5, 'Dana', 5, 'Beautifully written and immersive.');
+
 -- Crew gehört genau zu einem Film (1:1) -> direkt als Spalten in movies
 CREATE TABLE movies (
     id serial primary key,
