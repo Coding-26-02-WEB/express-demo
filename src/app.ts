@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import booksRouter from "./books/books.router.ts";
 import moviesRouter from "./movies/movies.router.ts";
+import reviewsRouter from "./reviews/reviews.router.ts";
 import { checkApiKey } from "./middlewares/checkApiKey.ts";
 import morgan from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
@@ -27,12 +28,14 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // app.use(logger);
 app.use(morgan("dev"));
+app.use(express.json());
 // app.use(checkApiKey);
 
 app.get("/status", (req, res) => {
     res.status(200).json({ message: "Server is running." })
 })
 
+app.use("/books/:id/reviews", checkApiKey, reviewsRouter);
 app.use("/books", checkApiKey, booksRouter);
 app.use("/movies", moviesRouter);
 
@@ -45,6 +48,9 @@ app.use((req, res) => {
 })
 
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
+    if (err instanceof SyntaxError && "status" in err && err.status === 400) {
+        return res.status(400).json({ error: "Request body must be valid JSON." });
+    }
     console.error(err.stack);
     res.status(500).json({ error: "Internal server error."});
 })
