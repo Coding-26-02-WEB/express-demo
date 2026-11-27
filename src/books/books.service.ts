@@ -1,9 +1,11 @@
 import { BookNotFoundError } from "./books.errors.ts";
+import { getAverageRating, getAverageRatings } from "../reviews/reviews.repo.ts";
 
 interface Book {
     id: number;
     title: string;
     author: string;
+    averageRating: number | null;
 }
 
 const books = [
@@ -20,11 +22,13 @@ const books = [
 ];
 
 export async function getAllBooks(): Promise<Book[]> {
-    return books;
+    const averages = await getAverageRatings(books.map((b) => b.id));
+    return books.map((book) => ({ ...book, averageRating: averages.get(book.id) ?? null }));
 }
 
 export async function getBookById(id: number): Promise<Book> {
     const book = books.find((b) => b.id === id);
     if (!book) throw new BookNotFoundError(id);
-    return book;
+    const averageRating = await getAverageRating(book.id);
+    return { ...book, averageRating };
 }
