@@ -6,9 +6,10 @@ export interface Book {
     title: string;
     author: string;
     release_date: string | null; // "YYYY-MM-DD"
+    average_rating: number | null;
 }
 
-export type NewBook = Omit<Book, "id">;
+export type NewBook = Omit<Book, "id" | "average_rating">;
 
 interface OpenLibrarySearchResponse {
     docs: {
