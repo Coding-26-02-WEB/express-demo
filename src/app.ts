@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import booksRouter from "./books/books.router.ts";
 import moviesRouter from "./movies/movies.router.ts";
+import reviewsRouter from "./reviews/reviews.router.ts";
 import { checkApiKey } from "./middlewares/checkApiKey.ts";
 import morgan from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
@@ -35,6 +36,7 @@ app.get("/status", (req, res) => {
     res.status(200).json({ message: "Server is running." })
 })
 
+app.use("/books/:id/reviews", checkApiKey, reviewsRouter);
 app.use("/books", checkApiKey, booksRouter);
 app.use("/movies", moviesRouter);
 

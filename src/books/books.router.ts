@@ -17,7 +17,7 @@ const router = Router();
  *           type: string
  *     responses:
  *       200:
- *         description: Liste aller Bücher
+ *         description: Liste aller Bücher, jeweils mit average_rating (Durchschnitt der Rezensionen, null ohne Rezension)
  */
 router.get("/", getBooksHandler);
 
@@ -53,7 +53,7 @@ router.get("/", getBooksHandler);
  *                 example: "1937-09-21"
  *     responses:
  *       201:
- *         description: Das angelegte Buch
+ *         description: Das angelegte Buch (average_rating ist null, weil es noch keine Rezensionen gibt)
  *       400:
  *         description: Titel oder Autor fehlt, oder release_date ist kein gültiges Datum (YYYY-MM-DD).
  *       409:
@@ -80,7 +80,7 @@ router.post("/", createBookHandler);
  *           type: string
  *     responses:
  *       200:
- *         description: Liste der gefundenen Bücher
+ *         description: Liste der gefundenen Bücher, jeweils mit average_rating
  *       400:
  *         description: Der Suchbegriff fehlt.
  *       502:
@@ -107,7 +107,7 @@ router.get("/search", searchBooksHandler);
  *           type: string
  *     responses:
  *       200:
- *         description: Ein Buch
+ *         description: Ein Buch mit average_rating (Durchschnitt der Rezensionen, null ohne Rezension)
  *       404:
  *         description: Kein Buch mit der ID wurde gefunden.
  */
