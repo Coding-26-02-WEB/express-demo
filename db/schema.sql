@@ -21,6 +21,42 @@ INSERT INTO books (title, author, release_date) VALUES
     ('Mistborn: The Final Empire', 'Brandon Sanderson', '2006-07-17'),
     ('The Hitchhiker''s Guide to the Galaxy', 'Douglas Adams', '1979-10-12');
 
+-- Eine Rezension gehört genau zu einem Buch (1:n).
+-- Wird das Buch gelöscht, verschwinden seine Rezensionen mit (ON DELETE CASCADE).
+CREATE TABLE reviews (
+    id serial primary key,
+    book_id integer NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+    author varchar NOT NULL,
+    rating integer NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment text,
+    created_at timestamptz NOT NULL DEFAULT now()
+);
+
+-- Reviews werden fast immer über das Buch abgefragt
+CREATE INDEX reviews_book_id_idx ON reviews (book_id);
+
+-- Buch über den Titel statt über eine feste ID zuordnen:
+-- so passt der Seed auch in DBs, in denen die Bücher schon andere IDs haben.
+-- Foundation, Neuromancer, The Left Hand of Darkness und Hitchhiker's Guide bleiben ohne Review -> average_rating ist dort null
+INSERT INTO reviews (book_id, author, rating, comment)
+SELECT b.id, v.author, v.rating, v.comment
+FROM (VALUES
+    ('The Hobbit',                 'Anna',   5, 'Ein zeitloser Klassiker.'),
+    ('The Hobbit',                 'Ben',    4, 'Langsamer Anfang, dann großartig.'),
+    ('The Hobbit',                 'Clara',  5, NULL),
+    ('Dune',                       'David',  5, 'Die beste Sci-Fi, die ich kenne.'),
+    ('Dune',                       'Emil',   3, 'Stark, aber sehr dicht geschrieben.'),
+    ('A Game of Thrones',          'Fatma',  4, 'Spannend, viele Figuren zum Merken.'),
+    ('A Game of Thrones',          'Gregor', 2, 'Zu brutal für meinen Geschmack.'),
+    ('The Name of the Wind',       'Hanna',  5, 'Wunderschöne Sprache.'),
+    ('The Name of the Wind',       'Ivan',   4, NULL),
+    ('Die unendliche Geschichte',  'Jana',   5, 'Hat mich als Kind geprägt.'),
+    ('Die unendliche Geschichte',  'Karl',   4, 'Auch für Erwachsene lesenswert.'),
+    ('Mistborn: The Final Empire', 'Lena',   4, 'Cleveres Magiesystem.'),
+    ('Mistborn: The Final Empire', 'Mehmet', 3, 'Gute Idee, etwas lang.')
+) AS v(title, author, rating, comment)
+JOIN books b ON b.title = v.title;
+
 -- Crew gehört genau zu einem Film (1:1) -> direkt als Spalten in movies
 CREATE TABLE movies (
     id serial primary key,
