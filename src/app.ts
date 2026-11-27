@@ -1,6 +1,7 @@
 import express, { NextFunction, Request, Response } from "express";
 import booksRouter from "./books/books.router.ts";
 import moviesRouter from "./movies/movies.router.ts";
+import reviewsRouter from "./reviews/reviews.router.ts";
 import { checkApiKey } from "./middlewares/checkApiKey.ts";
 import morgan from "morgan";
 import swaggerJSDoc from "swagger-jsdoc";
@@ -27,12 +28,16 @@ app.use("/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 
 // app.use(logger);
 app.use(morgan("dev"));
+app.use(express.json());
 // app.use(checkApiKey);
 
 app.get("/status", (req, res) => {
     res.status(200).json({ message: "Server is running." })
 })
 
+// reviews first: otherwise the checkApiKey of the books
+// mount intercepts /books/:id/reviews (unmatched routes fall through)
+app.use("/books", reviewsRouter);
 app.use("/books", checkApiKey, booksRouter);
 app.use("/movies", moviesRouter);
 
