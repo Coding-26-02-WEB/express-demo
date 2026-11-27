@@ -17,7 +17,7 @@ const router = Router();
  *           type: string
  *     responses:
  *       200:
- *         description: Liste aller Bücher
+ *         description: Liste aller Bücher, jeweils mit averageRating. Ohne Rezensionen ist averageRating null.
  */
 router.get("/", getBooksHandler);
 
@@ -40,7 +40,7 @@ router.get("/", getBooksHandler);
  *           type: string
  *     responses:
  *       200:
- *         description: Ein Buch
+ *         description: Ein Buch mit averageRating. Ohne Rezensionen ist averageRating null.
  *       404:
  *         description: Kein Buch mit der ID wurde gefunden.
  */
