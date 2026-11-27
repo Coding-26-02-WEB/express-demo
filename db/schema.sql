@@ -21,6 +21,29 @@ INSERT INTO books (title, author, release_date) VALUES
     ('Mistborn: The Final Empire', 'Brandon Sanderson', '2006-07-17'),
     ('The Hitchhiker''s Guide to the Galaxy', 'Douglas Adams', '1979-10-12');
 
+-- Eine Rezension gehört zu genau einem Buch (1:n). Wird das Buch gelöscht, gehen seine Rezensionen mit.
+CREATE TABLE reviews (
+    id serial primary key,
+    book_id integer NOT NULL REFERENCES books(id) ON DELETE CASCADE,
+    author varchar NOT NULL,
+    rating integer NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment text NOT NULL
+);
+
+-- Für Fremdschlüssel legt Postgres keinen Index an; wir suchen aber immer nach book_id.
+CREATE INDEX reviews_book_id_index ON reviews (book_id);
+
+-- book_id = Reihenfolge im books-Seed oben. Manche Bücher bleiben absichtlich ohne Rezension.
+INSERT INTO reviews (book_id, author, rating, comment) VALUES
+    (1, 'Anna', 5, 'Ein Klassiker, den man immer wieder lesen kann.'),
+    (1, 'Ben', 4, 'Schöne Reise, der Anfang zieht sich etwas.'),
+    (2, 'Clara', 5, 'Unglaublich dichte Welt.'),
+    (2, 'David', 3, 'Spannend, aber viele Begriffe auf einmal.'),
+    (2, 'Emre', 5, 'Politik, Ökologie und Abenteuer in einem.'),
+    (3, 'Anna', 4, 'Viele Figuren, aber jede lohnt sich.'),
+    (6, 'Ben', 2, 'Wichtig für das Genre, mir aber zu verworren.'),
+    (10, 'Clara', 5, 'Die Antwort ist 42.');
+
 -- Crew gehört genau zu einem Film (1:1) -> direkt als Spalten in movies
 CREATE TABLE movies (
     id serial primary key,
