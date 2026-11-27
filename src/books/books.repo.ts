@@ -5,14 +5,21 @@ import { BookAlreadyExistsError } from "./books.errors.ts";
 
 const pool = getPostgresPool();
 
+// LEFT JOIN: Bücher ohne Rezensionen bleiben dabei (average_rating = null).
+// ::float8, weil pg das Ergebnis von AVG (numeric) sonst als String liefert.
+const SELECT_BOOKS = `
+    SELECT b.*, AVG(r.rating)::float8 AS average_rating
+    FROM books b
+    LEFT JOIN reviews r ON r.book_id = b.id`;
+
 export async function getAllBooks(): Promise<Book[]> {
-    const result = await pool.query("SELECT * FROM books");
+    const result = await pool.query(`${SELECT_BOOKS} GROUP BY b.id ORDER BY b.id`);
     return result.rows;
 }
 
 export async function getBookById(id: number): Promise<Book | null> {
     const result = await pool.query(
-        `SELECT * FROM books WHERE id = $1`,
+        `${SELECT_BOOKS} WHERE b.id = $1 GROUP BY b.id`,
         [id]
     )
     if (result.rows.length === 0) return null;
@@ -21,7 +28,7 @@ export async function getBookById(id: number): Promise<Book | null> {
 
 export async function searchBook(query: string): Promise<Book[]> {
     const result = await pool.query(
-        `SELECT * FROM books WHERE title ILIKE $1 OR author ILIKE $1`,
+        `${SELECT_BOOKS} WHERE b.title ILIKE $1 OR b.author ILIKE $1 GROUP BY b.id ORDER BY b.id`,
         [`%${query}%`]
     );
     return result.rows;
@@ -30,7 +37,8 @@ export async function searchBook(query: string): Promise<Book[]> {
 export async function createBook(book: NewBook): Promise<Book> {
     try {
         const result = await pool.query(
-            `INSERT INTO books (title, author, release_date) VALUES ($1, $2, $3) RETURNING *`,
+            // Ein neues Buch hat noch keine Rezensionen
+            `INSERT INTO books (title, author, release_date) VALUES ($1, $2, $3) RETURNING *, NULL::float8 AS average_rating`,
             [book.title, book.author, book.release_date]
         );
         return result.rows[0];
